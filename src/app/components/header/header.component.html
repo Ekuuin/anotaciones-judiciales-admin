@@ -1,0 +1,47 @@
+<header class="bg-white shadow">
+    <div class="px-4 mx-auto sm:px-6 lg:px-8 xl:px-12">
+        <div class="flex items-center justify-between h-16 lg:h-[72px]">
+
+            <!-- Logo -->
+            <div class="flex items-center flex-shrink-0">
+                <a routerLink="/" class="flex items-center">
+                    <img src="assets/img/gobGente.png" alt="Gobierno del Estado de Guanajuato"
+                        class="h-14 lg:h-16 mr-3 transition-transform hover:scale-105" />
+                </a>
+            </div>
+
+            <!-- Menú desktop -->
+            <nav class="hidden lg:flex lg:ml-16 lg:space-x-8 xl:space-x-14">
+                <ng-container>
+                    <a href="#" class="text-base font-medium text-gray-700 hover:text-blue-600 transition">Conócenos</a>
+                    <a href="#" class="text-base font-medium text-gray-700 hover:text-blue-600 transition">Trámites y
+                        Servicios</a>
+                    <a href="#" class="text-base font-medium text-gray-700 hover:text-blue-600 transition">Registro
+                        Civil</a>
+                    <a href="#" class="text-base font-medium text-gray-700 hover:text-blue-600 transition">Defensoría
+                        Pública</a>
+                    <a href="#"
+                        class="text-base font-medium text-gray-700 hover:text-blue-600 transition">Convocatorias</a>
+                </ng-container>
+            </nav>
+        </div>
+
+        <!-- Menú móvil desplegable -->
+        <div *ngIf="menuOpen" class="lg:hidden mt-3 space-y-2">
+            <ng-container *ngIf="!isLoggedIn">
+                <a href="#" class="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100">Conócenos</a>
+                <a href="#" class="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100">Trámites y Servicios</a>
+                <a href="#" class="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100">Registro Civil</a>
+                <a href="#" class="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100">Defensoría Pública</a>
+                <a href="#" class="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100">Convocatorias</a>
+            </ng-container>
+
+            <ng-container *ngIf="isLoggedIn">
+                <a routerLink="/home" class="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100">Inicio</a>
+                <a routerLink="/documentos"
+                    class="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100">Documentos</a>
+                <a routerLink="/resumen" class="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100">Resumen</a>
+            </ng-container>
+        </div>
+    </div>
+</header>

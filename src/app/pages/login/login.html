@@ -1,0 +1,77 @@
+<app-header></app-header>
+
+<div class="min-h-[calc(100vh-4rem)] lg:min-h-[calc(100vh-72px)] flex items-center justify-center bg-gray-100 px-4">
+    <div class="flex bg-white rounded-xl shadow-2xl overflow-hidden w-full max-w-4xl">
+
+        <!-- Imagen lateral -->
+        <div class="hidden lg:block lg:w-1/2">
+            <img src="./assets/img/anotacionesImg.png" alt="Imagen institucional"
+                class="w-full h-full object-cover rounded-l-lg" />
+        </div>
+
+
+        <!-- Formulario -->
+        <div class="w-full lg:w-1/2 p-10">
+            <h1 class="text-3xl font-extrabold text-blue-900 text-center">Plataforma de Anotaciones Judiciales</h1>
+            <p class="text-gray-600 text-center mt-2">Inicia sesión para continuar</p>
+
+
+            <button (click)="onGoogleLogin()"
+                class="mt-6 w-full flex items-center justify-center gap-3 py-2 border rounded-lg shadow-sm hover:shadow-lg transition bg-white text-gray-700 font-medium cursor-pointer">
+                <svg class="w-6 h-6" viewBox="0 0 48 48">
+                    <path fill="#EA4335"
+                        d="M24 9.5c3.15 0 5.94 1.08 8.15 3.2l6.1-6.1C34.3 3.4 29.5 1.5 24 1.5 14.8 1.5 7.2 6.7 3.6 14.2l7.1 5.5C12.5 13 17.7 9.5 24 9.5z" />
+                    <path fill="#4285F4"
+                        d="M46.1 24.6c0-1.5-.1-2.9-.4-4.1H24v8.1h12.5c-.5 2.8-2.1 5.2-4.4 6.8l6.8 5.3c4-3.7 6.2-9.1 6.2-16.1z" />
+                    <path fill="#FBBC05"
+                        d="M10.7 28.7c-.5-1.3-.7-2.6-.7-4.2s.2-2.9.7-4.2l-7.1-5.5C2.5 17.8 2 20.8 2 24s.5 6.2 1.6 9l7.1-5.3z" />
+                    <path fill="#34A853"
+                        d="M24 46c6.5 0 11.9-2.1 15.8-5.7l-6.8-5.3c-1.9 1.3-4.4 2.1-7 2.1-6.3 0-11.5-4.3-13.4-10.2l-7.1 5.3C7.2 41.3 14.8 46 24 46z" />
+                </svg>
+                <span>Continuar con Google</span>
+            </button>
+
+
+            <div class="flex items-center my-6">
+                <div class="flex-grow h-px bg-gray-300"></div>
+                <span class="px-3 text-sm text-gray-500">o con tu cuenta</span>
+                <div class="flex-grow h-px bg-gray-300"></div>
+            </div>
+
+
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-semibold mb-2">Correo electrónico</label>
+                <input type="email" placeholder="ejemplo@correo.com"
+                    class="w-full px-4 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+            </div>
+
+            <div class="mb-4">
+                <div class="flex justify-between items-center">
+                    <label class="block text-gray-700 text-sm font-semibold">Contraseña</label>
+                    <a href="#" class="text-xs text-blue-600 hover:underline">¿Olvidaste tu contraseña?</a>
+                </div>
+                <input type="password" placeholder="********"
+                    class="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+            </div>
+
+
+            <button
+                class="w-full mt-6 bg-blue-800 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-900 transition cursor-pointer">
+                Iniciar sesión
+            </button>
+
+            <div class="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
+                <a href="register"
+                    class="flex-1 text-center px-4 py-2 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition">
+                    Regístrate
+                </a>
+                <a href="validate-account"
+                    class="flex-1 text-center px-4 py-2 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition">
+                    Validar cuenta
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<app-footer></app-footer>
