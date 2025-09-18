@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
@@ -10,9 +10,20 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './layout.html',
   styleUrl: './layout.scss',
 })
-export class Layout {
-  constructor(private authService: AuthService, private router: Router) {}
+export class Layout implements OnInit{
+  userName: string | null = ''; 
+  userPhoto: string | null = '';
 
+  constructor(private authService: AuthService, private router: Router) {}
+  ngOnInit(): void {
+    const dataUser = localStorage.getItem('dataUser');
+    if (dataUser) {
+      const user = JSON.parse(dataUser);
+      this.userName = user.displayName || 'Usuario';
+      this.userPhoto = user.photoURL || './assets/img/default-user.png';
+    }
+  }
+  
   onLogout(): void {
     this.authService.signOut().subscribe({
       next: () => {
