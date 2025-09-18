@@ -5,12 +5,13 @@ export const firebaseConfig = {
   // 🔹 Obtén estos valores desde: https://console.firebase.google.com/
   // Ve a: Configuración del proyecto > General > Tus aplicaciones > Configuración del SDK
 
-  apiKey: "tu-api-key-aqui",
-  authDomain: "tu-proyecto.firebaseapp.com",
-  projectId: "tu-proyecto-id",
-  storageBucket: "tu-proyecto.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "1:123456789:web:abcd1234efgh5678"
+  apiKey: 'AIzaSyBstEU6GwbyU_OXuWkL8CVV8MKy5HMARks',
+  authDomain: 'anotaciones-judiciales.firebaseapp.com',
+  projectId: 'anotaciones-judiciales',
+  storageBucket: 'anotaciones-judiciales.firebasestorage.app',
+  messagingSenderId: '741073217701',
+  appId: '1:741073217701:web:50baba5997139a41a8854c',
+  measurementId: 'G-K0S69S4XXJ',
 };
 
 // 🔹 Pasos para configurar Firebase:
