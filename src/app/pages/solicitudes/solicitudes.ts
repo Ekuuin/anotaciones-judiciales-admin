@@ -20,8 +20,6 @@ export class Solicitudes {
     { folio: '007', usuario: 'Miguel Torres', fecha: '2024-01-21', estado: 'Pendiente' },
   ];
 
-  // Array con todas las solicitudes (sin filtros)
-  public allSolicitudes = [...this.solicitudes];
   // Array filtrado (cambia según la búsqueda)
   public filteredSolicitudes = [...this.solicitudes];
   // Array paginado (lo que se muestra en la tabla)
@@ -79,10 +77,10 @@ export class Solicitudes {
 
     if (term === '') {
       // Si no hay término de búsqueda, mostrar todas las solicitudes
-      this.filteredSolicitudes = [...this.allSolicitudes];
+      this.filteredSolicitudes = [...this.solicitudes];
     } else {
       // Filtrar las solicitudes según el término de búsqueda
-      this.filteredSolicitudes = this.allSolicitudes.filter(solicitud =>
+      this.filteredSolicitudes = this.solicitudes.filter(solicitud =>
         solicitud.folio.toLowerCase().includes(term) ||
         solicitud.usuario.toLowerCase().includes(term) ||
         solicitud.fecha.toLowerCase().includes(term) ||
@@ -94,6 +92,16 @@ export class Solicitudes {
     this.totalItems = this.filteredSolicitudes.length;
     this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
     this.currentPage = 1; // Volver a la primera página
+    this.updatePaginatedSolicitudes();
+  }
+
+  public cancelarSolicitud(folio: string): void {
+    this.filteredSolicitudes = this.filteredSolicitudes.map(solicitud => {
+      if (solicitud.folio === folio && solicitud.estado === 'Pendiente') {
+        return { ...solicitud, estado: 'Rechazada' };
+      }
+      return solicitud;
+    });
     this.updatePaginatedSolicitudes();
   }
 }

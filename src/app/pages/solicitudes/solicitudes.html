@@ -1,7 +1,32 @@
 <div class="flex flex-col">
-  <div class="flex flex-1 bg-white rounded-lg mb-4 p-2 text-gray-500 items-center gap-1 justify-end">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M11 6C13.7614 6 16 8.23858 16 11M16.6588 16.6549L21 21M19 11C19 15.4183 15.4183 19 11 19C6.58172 19 3 15.4183 3 11C3 6.58172 6.58172 3 11 3C15.4183 3 19 6.58172 19 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
-    <input placeholder="Buscar..." (input)="onSearchEvent($event.target.value)" class="border border-gray-200 rounded-lg outline-none px-2 py-1" type="text">
+  <div class="flex rounded-lg mb-4 pt-2 text-gray-500 items-center justify-end">
+    <div class="bg-white flex items-center rounded-lg pl-1 border border-gray-200">
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+        <g id="SVGRepo_iconCarrier">
+          <path
+            d="M11 6C13.7614 6 16 8.23858 16 11M16.6588 16.6549L21 21M19 11C19 15.4183 15.4183 19 11 19C6.58172 19 3 15.4183 3 11C3 6.58172 6.58172 3 11 3C15.4183 3 19 6.58172 19 11Z"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          ></path>
+        </g>
+      </svg>
+      <input
+        placeholder="Buscar..."
+        (input)="onSearchEvent($event.target.value)"
+        class="rounded-e-lg outline-none px-2 py-1"
+        type="text"
+      />
+    </div>
   </div>
 
   <div class="flex flex-1 rounded-t-lg border border-gray-200 overflow-hidden">
@@ -36,12 +61,22 @@
               >● {{ solicitud.estado }}</span
             >
           </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm">
-            <button
-              class="text-blue-500 font-medium bg-blue-50 px-3 py-1 rounded-lg hover:bg-blue-100 transition"
-            >
-              Ver detalles
-            </button>
+          <td class="px-6 py-4 whitespace-nowrap text-sm w-[300px]">
+            <div class="flex gap-4">
+              <button
+                class="text-blue-500 font-medium bg-blue-50 px-3 py-1 rounded-lg hover:bg-blue-100 transition cursor-pointer"
+              >
+                Ver detalles
+              </button>
+              @if (solicitud.estado === 'Pendiente') {
+              <button
+                class="text-red-500 font-medium bg-red-50 px-3 py-1 rounded-lg hover:bg-red-100 transition cursor-pointer"
+                (click)="cancelarSolicitud(solicitud.folio)"
+              >
+                Cancelar
+              </button>
+              }
+            </div>
           </td>
         </tr>
         }
