@@ -14,10 +14,22 @@ export class Solicitudes {
     { folio: '001', usuario: 'Juan Pérez', fecha: '2024-01-15', estado: 'Pendiente' },
     { folio: '002', usuario: 'María López', fecha: '2024-01-16', estado: 'Aprobada' },
     { folio: '003', usuario: 'Carlos Sánchez', fecha: '2024-01-17', estado: 'Rechazada' },
-    { folio: '004', usuario: 'Ana Gómez', fecha: '2024-01-18', estado: 'Pendiente' },
+    { folio: '004', usuario: 'Ana Gómez', fecha: '2024-01-18', estado: 'En revisión' },
     { folio: '005', usuario: 'Luis Martínez', fecha: '2024-01-19', estado: 'Aprobada' },
     { folio: '006', usuario: 'Sofía Ramírez', fecha: '2024-01-20', estado: 'Rechazada' },
     { folio: '007', usuario: 'Miguel Torres', fecha: '2024-01-21', estado: 'Pendiente' },
+    { folio: '008', usuario: 'Laura Fernández', fecha: '2024-01-22', estado: 'Aprobada' },
+    { folio: '009', usuario: 'Diego Ruiz', fecha: '2024-01-23', estado: 'Rechazada' },
+    { folio: '010', usuario: 'Elena Morales', fecha: '2024-01-24', estado: 'Pendiente' },
+    { folio: '011', usuario: 'Pedro Jiménez', fecha: '2024-01-25', estado: 'Aprobada' },
+    { folio: '012', usuario: 'Marta Castillo', fecha: '2024-01-26', estado: 'En revisión' },
+    { folio: '013', usuario: 'Javier Ruiz', fecha: '2024-01-27', estado: 'Pendiente' },
+    { folio: '014', usuario: 'Carmen Díaz', fecha: '2024-01-28', estado: 'En revisión' },
+    { folio: '015', usuario: 'Andrés Herrera', fecha: '2024-01-29', estado: 'Rechazada' },
+    { folio: '016', usuario: 'Lucía Vázquez', fecha: '2024-01-30', estado: 'Pendiente' },
+    { folio: '017', usuario: 'Fernando Silva', fecha: '2024-01-31', estado: 'Aprobada' },
+    { folio: '018', usuario: 'Isabel Moreno', fecha: '2024-02-01', estado: 'Rechazada' },
+    { folio: '019', usuario: 'Raúl Ortiz', fecha: '2024-02-02', estado: 'Pendiente' },
   ];
 
   // Array filtrado (cambia según la búsqueda)
@@ -28,7 +40,7 @@ export class Solicitudes {
   public currentPage = 1;
   public itemsPerPage = 10;
   public totalItems = this.solicitudes.length;
-  public totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
+  public totalPages =  Math.ceil(this.totalItems / this.itemsPerPage);
 
   constructor() {
     this.updatePaginatedSolicitudes();
@@ -97,7 +109,7 @@ export class Solicitudes {
 
   public cancelarSolicitud(folio: string): void {
     this.filteredSolicitudes = this.filteredSolicitudes.map(solicitud => {
-      if (solicitud.folio === folio && solicitud.estado === 'Pendiente') {
+      if (solicitud.folio === folio) {
         return { ...solicitud, estado: 'Rechazada' };
       }
       return solicitud;
