@@ -2,12 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
-
-interface CarouselSlide {
-  image: string;
-  title: string;
-  description: string;
-}
+import { CarouselService, CarouselSlide } from '../../services/carousel.service';
 
 @Component({
   selector: 'app-layout',
@@ -17,31 +12,21 @@ interface CarouselSlide {
   styleUrl: './layout.scss',
 })
 export class Layout implements OnInit, OnDestroy {
-  userName: string | null = ''; 
+  userName: string | null = '';
   userPhoto: string | null = '';
 
   // Propiedades del carrusel
   currentSlide = 0;
   private autoSlideInterval: any;
-  carouselSlides: CarouselSlide[] = [
-    {
-      image: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=300&fit=crop&auto=format',
-      title: 'Servicios Digitales',
-      description: 'Modernización en trámites del Registro Civil'
-    },
-    {
-      image: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=400&h=300&fit=crop&auto=format',
-      title: 'Atención Ciudadana',
-      description: 'Comprometidos con la excelencia en el servicio'
-    },
-    {
-      image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=300&fit=crop&auto=format',
-      title: 'Innovación',
-      description: 'Tecnología al servicio de la ciudadanía'
-    }
-  ];
+  carouselSlides: CarouselSlide[] = [];
+  isLoadingSlides = true;
+  hasSlides = false;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private carouselService: CarouselService
+  ) {}
   ngOnInit(): void {
     const dataUser = localStorage.getItem('dataUser');
     if (dataUser) {
@@ -49,9 +34,9 @@ export class Layout implements OnInit, OnDestroy {
       this.userName = user.displayName || 'Usuario';
       this.userPhoto = user.photoURL || './assets/img/default-user.png';
     }
-    
-    // Iniciar carrusel automático
-    this.startAutoSlide();
+
+    // Cargar slides desde el servidor Python
+    this.obtenerSlides();
   }
 
   ngOnDestroy(): void {
@@ -61,10 +46,68 @@ export class Layout implements OnInit, OnDestroy {
   }
 
   // Métodos del carrusel
+  obtenerSlides(): void {
+    this.isLoadingSlides = true;
+
+    this.carouselService.getSlides().subscribe({
+      next: (response) => {
+        this.isLoadingSlides = false;
+
+        if (response.isSuccess && response.data.length > 0) {
+          this.carouselSlides = response.data;
+          this.hasSlides = true;
+        } else {
+          this.hasSlides = response.data.length > 0;
+        }
+
+        // Iniciar carrusel solo después de cargar slides
+        if (this.hasSlides) {
+          this.startAutoSlide();
+        }
+      },
+      error: (error) => {
+        console.error('❌ Error al cargar slides:', error);
+        this.isLoadingSlides = false;
+        this.hasSlides = false;
+
+        // Cargar slides de emergencia
+        this.loadFallbackSlides();
+      },
+    });
+  }
+
+  private loadFallbackSlides(): void {
+    this.carouselSlides = [
+      {
+        imagenUrl: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=300&fit=crop&auto=format',
+        title: 'Servicios Digitales',
+        description: 'Modernización en trámites del Registro Civil'
+      },
+      {
+        imagenUrl: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=400&h=300&fit=crop&auto=format',
+        title: 'Atención Ciudadana',
+        description: 'Comprometidos con la excelencia en el servicio'
+      },
+      {
+        imagenUrl: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=300&fit=crop&auto=format',
+        title: 'Innovación',
+        description: 'Tecnología al servicio de la ciudadanía'
+      }
+    ];
+    this.hasSlides = true;
+    this.startAutoSlide();
+  }
+
   startAutoSlide(): void {
-    this.autoSlideInterval = setInterval(() => {
-      this.nextSlide();
-    }, 4000); // Cambia cada 4 segundos
+    // Limpiar intervalo existente
+    this.stopAutoSlide();
+
+    // Solo iniciar si hay slides
+    if (this.carouselSlides.length > 1) {
+      this.autoSlideInterval = setInterval(() => {
+        this.nextSlide();
+      }, 4000); // Cambia cada 4 segundos
+    }
   }
 
   stopAutoSlide(): void {
@@ -74,13 +117,34 @@ export class Layout implements OnInit, OnDestroy {
   }
 
   nextSlide(): void {
-    this.currentSlide = (this.currentSlide + 1) % this.carouselSlides.length;
+    if (this.carouselSlides.length > 0) {
+      this.currentSlide = (this.currentSlide + 1) % this.carouselSlides.length;
+    }
   }
 
   previousSlide(): void {
-    this.currentSlide = this.currentSlide === 0 
-      ? this.carouselSlides.length - 1 
-      : this.currentSlide - 1;
+    if (this.carouselSlides.length > 0) {
+      this.currentSlide = this.currentSlide === 0
+        ? this.carouselSlides.length - 1
+        : this.currentSlide - 1;
+    }
+  }
+
+  // Método helper para calcular el porcentaje de transform dinámicamente
+  getTransformPercent(): number {
+    if (this.carouselSlides.length === 0) return 0;
+    return (this.currentSlide * (100 / this.carouselSlides.length));
+  }
+
+  // Método helper para calcular el ancho del contenedor
+  getContainerWidth(): string {
+    return `${this.carouselSlides.length * 100}%`;
+  }
+
+  // Método helper para calcular el ancho de cada slide
+  getSlideWidth(): string {
+    if (this.carouselSlides.length === 0) return '100%';
+    return `${100 / this.carouselSlides.length}%`;
   }
 
   goToSlide(index: number): void {
@@ -89,7 +153,7 @@ export class Layout implements OnInit, OnDestroy {
     this.stopAutoSlide();
     this.startAutoSlide();
   }
-  
+
   onLogout(): void {
     this.authService.signOut().subscribe({
       next: () => {
