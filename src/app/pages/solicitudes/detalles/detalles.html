@@ -1,0 +1,147 @@
+<div class="flex flex-col">
+  <div class="flex items-center gap-3">
+    <button class="p-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition-colors" (click)="goBack()">
+      <svg
+        class="w-6 h-6 text-gray-700"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+        <g id="SVGRepo_iconCarrier">
+          <g id="Arrow / Arrow_Left_SM">
+            <path
+              id="Vector"
+              d="M17 12H7M7 12L11 16M7 12L11 8"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            ></path>
+          </g>
+        </g>
+      </svg>
+    </button>
+    <h2 class="text-2xl font-semibold text-gray-700 ml-2">Solicitud #EXP-20251017-142132-986</h2>
+    <span
+      class="px-2 py-1 inline-flex text-s leading-5 rounded-full border"
+      [ngClass]="{
+        'text-red-500 bg-red-100 border-red-500': solicitud.estado === 'Rechazada',
+        'text-green-500 bg-green-100 border-green-500': solicitud.estado === 'Aprobada',
+        'text-yellow-500 bg-yellow-100 border-yellow-500': solicitud.estado === 'Pendiente',
+        'text-blue-500 bg-blue-100 border-blue-500': solicitud.estado === 'En revisión'
+      }"
+      >● {{ solicitud.estado }}</span
+    >
+  </div>
+  <div class="flex flex-col">
+    <h3 id="SubtituloContrayentes" class="text-lg font-medium text-gray-700 mt-6 mb-2">
+      Datos de los contrayentes
+    </h3>
+    <div id="Contrayentes" class="flex gap-2">
+      <div id="Contrayente1" class="flex flex-col flex-1 bg-white rounded border border-gray-200">
+        <div class="bg-gray-100 rounded-t-lg p-2 border-b border-gray-200 text-sm">
+          <span>Contrayente 1</span>
+        </div>
+        <div class="bg-white flex flex-col p-3">
+          <div class="flex gap-2 items-center">
+            <label class="block text-base font-semibold text-gray-600">CURP:</label>
+            <div class="text-gray-800">JUAP850315HDFRZN07</div>
+          </div>
+          <div class="flex gap-2 items-center">
+            <label class="block text-base font-semibold text-gray-600">Nombre(s):</label>
+            <div class="text-gray-800">Juan</div>
+          </div>
+          <div class="flex gap-2 items-center">
+            <label class="block text-base font-semibold text-gray-600">Apellido paterno:</label>
+            <div class="text-gray-800">Pérez</div>
+          </div>
+          <div class="flex gap-2 items-center">
+            <label class="block text-base font-semibold text-gray-600">Apellido materno:</label>
+            <div class="text-gray-800">López</div>
+          </div>
+          <div class="flex gap-2 items-center">
+            <label class="block text-base font-semibold text-gray-600">Fecha de nacimiento:</label>
+            <div class="text-gray-800">15 de marzo de 1985</div>
+          </div>
+        </div>
+      </div>
+      <div id="Contrayente2" class="flex flex-col flex-1 bg-white rounded border border-gray-200">
+        <div class="bg-gray-100 rounded-t-lg p-2 border-b border-gray-200 text-sm">
+          <span>Contrayente 2</span>
+        </div>
+        <div class="bg-white flex flex-col p-3">
+          <div class="flex gap-2 items-center">
+            <label class="block text-base font-semibold text-gray-600">CURP:</label>
+            <div class="text-gray-800">MARG890722MDFRZN08</div>
+          </div>
+          <div class="flex gap-2 items-center">
+            <label class="block text-base font-semibold text-gray-600">Nombre(s):</label>
+            <div class="text-gray-800">María</div>
+          </div>
+          <div class="flex gap-2 items-center">
+            <label class="block text-base font-semibold text-gray-600">Apellido paterno:</label>
+            <div class="text-gray-800">García</div>
+          </div>
+          <div class="flex gap-2 items-center">
+            <label class="block text-base font-semibold text-gray-600">Apellido materno:</label>
+            <div class="text-gray-800">Ramírez</div>
+          </div>
+          <div class="flex gap-2 items-center">
+            <label class="block text-base font-semibold text-gray-600">Fecha de nacimiento:</label>
+            <div class="text-gray-800">22 de julio de 1989</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="flex flex-col">
+    <h3 id="SubtituloSolicitud" class="text-lg font-medium text-gray-700 mt-6 mb-2">
+      Información de la solicitud
+    </h3>
+    <div
+      id="Solicitud"
+      class="flex gap-2 rounded bg-white border border-gray-200 p-3 justify-between"
+    >
+      <div class="flex flex-col gap-2">
+        <div class="flex gap-2 items-center">
+          <label class="block text-base font-semibold text-gray-600">Número de expendiente:</label>
+          <div class="text-gray-800">#EXP-20251017-142132-986</div>
+        </div>
+        <div class="flex gap-2 items-center">
+          <label class="block text-base font-semibold text-gray-600">Juzgado:</label>
+          <div class="text-gray-800">Juzgado Ejemplo</div>
+        </div>
+        <div class="flex gap-2 items-center">
+          <label class="block text-base font-semibold text-gray-600">Municipio:</label>
+          <div class="text-gray-800">León de los Aldama</div>
+        </div>
+      </div>
+      <div class="flex flex-col gap-2">
+        <div class="flex gap-2 items-center">
+          <label class="block text-base font-semibold text-gray-600">Fecha de inscripción:</label>
+          <div class="text-gray-800">17/05/2020</div>
+        </div>
+        <div class="flex gap-2 items-center">
+          <label class="block text-base font-semibold text-gray-600">Oficialía:</label>
+          <div class="text-gray-800">Las Joyas</div>
+        </div>
+        <div class="flex gap-2 items-center">
+          <label class="block text-base font-semibold text-gray-600">Libro:</label>
+          <div class="text-gray-800">2</div>
+        </div>
+      </div>
+      <div class="flex flex-col gap-2">
+        <div class="flex gap-2 items-center">
+          <label class="block text-base font-semibold text-gray-600">Número de acta:</label>
+          <div class="text-gray-800">237</div>
+        </div>
+        <div class="flex gap-2 items-center">
+          <label class="block text-base font-semibold text-gray-600">Régimen patrimonial:</label>
+          <div class="text-gray-800">Sociedad conyugal</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

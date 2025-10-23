@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-solicitudes',
@@ -38,11 +39,11 @@ export class Solicitudes {
   public paginatedSolicitudes: any[] = [];
 
   public currentPage = 1;
-  public itemsPerPage = 10;
+  public itemsPerPage = 11;
   public totalItems = this.solicitudes.length;
   public totalPages =  Math.ceil(this.totalItems / this.itemsPerPage);
 
-  constructor() {
+  constructor(private router: Router) {
     this.updatePaginatedSolicitudes();
   }
 
@@ -115,5 +116,9 @@ export class Solicitudes {
       return solicitud;
     });
     this.updatePaginatedSolicitudes();
+  }
+
+  public verDetalles(folio: string): void {
+    this.router.navigate(['/solicitudes/' + folio]);
   }
 }
