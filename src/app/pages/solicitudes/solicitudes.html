@@ -51,13 +51,18 @@
           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ solicitud.usuario }}</td>
           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ solicitud.fecha }}</td>
           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+            {{ solicitud.lineaCaptura }}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
             <span
               class="px-2 py-1 inline-flex text-xs leading-5 rounded-full border"
               [ngClass]="{
                 'text-red-500 bg-red-100 border-red-500': solicitud.estado === 'Rechazada',
                 'text-green-500 bg-green-100 border-green-500': solicitud.estado === 'Aprobada',
-                'text-yellow-500 bg-yellow-100 border-yellow-500': solicitud.estado === 'Pendiente',
-                'text-blue-500 bg-blue-100 border-blue-500': solicitud.estado === 'En revisión'
+                'text-yellow-500 bg-yellow-100 border-yellow-500':
+                  solicitud.estado === 'En revisión',
+                'text-blue-500 bg-blue-100 border-blue-500': solicitud.estado === 'Pagada',
+                'text-gray-500 bg-gray-100 border-gray-500': solicitud.estado === 'Finalizada'
               }"
               >● {{ solicitud.estado }}</span
             >
@@ -70,12 +75,32 @@
               >
                 Ver detalles
               </button>
-              @if (solicitud.estado === 'Pendiente' || solicitud.estado === 'En revisión') {
+              @if (solicitud.estado === 'En revisión') {
+              <button
+                class="text-green-500 font-medium bg-green-50 px-3 py-1 rounded-lg hover:bg-green-100 transition cursor-pointer"
+                (click)="subirDocumento(solicitud.folio)"
+              >
+                Aprobar
+              </button>
               <button
                 class="text-red-500 font-medium bg-red-50 px-3 py-1 rounded-lg hover:bg-red-100 transition cursor-pointer"
                 (click)="cancelarSolicitud(solicitud.folio)"
               >
                 Cancelar
+              </button>
+              } @if (solicitud.estado === 'Aprobada') {
+              <button
+                class="text-orange-500 font-medium bg-orange-50 px-3 py-1 rounded-lg hover:bg-orange-100 transition cursor-pointer"
+                (click)="verificarPago(solicitud.lineaCaptura, solicitud.folio)"
+              >
+                Verificar pago
+              </button>
+              } @if (solicitud.estado === 'Pagada') {
+              <button
+                class="text-gray-500 font-medium bg-gray-50 px-3 py-1 rounded-lg hover:bg-gray-100 transition cursor-pointer"
+                (click)="subirDocumento(solicitud.folio)"
+              >
+                Subir documento
               </button>
               }
             </div>
