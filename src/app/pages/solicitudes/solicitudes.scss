@@ -2,3 +2,90 @@
 :host {
   flex: 1 0 0;
 }
+
+// Animación para mostrar campos dinámicos
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+// Estilos personalizados para los selects
+.custom-select {
+  // Eliminar la flecha nativa del select
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  // Asegurar que el padding derecho deje espacio para el icono
+  padding-right: 2.5rem;
+
+  // Transición suave para todos los cambios
+  transition: all 0.2s ease-in-out;
+
+  // Estilo cuando está enfocado
+  &:focus {
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+  }
+
+  // Estilo para las opciones en navegadores que lo soporten
+  option {
+    padding: 0.75rem 1rem;
+    background-color: white;
+    color: #1f2937;
+    font-size: 0.875rem;
+
+    &:hover {
+      background-color: #fef2f2;
+      color: #991b1b;
+    }
+
+    &:checked {
+      background: linear-gradient(0deg, #fee2e2 0%, #fef2f2 100%);
+      color: #991b1b;
+      font-weight: 500;
+    }
+
+    &:disabled {
+      color: #9ca3af;
+      font-style: italic;
+    }
+  }
+}
+
+// Animación para el icono de la flecha al hacer hover
+.custom-select:hover + .pointer-events-none svg,
+.custom-select:focus + .pointer-events-none svg {
+  transform: translateY(2px);
+  transition: transform 0.2s ease;
+}
+
+// Estilos adicionales para mejorar la apariencia del dropdown
+select.custom-select {
+  // Sombra sutil al hacer hover
+  &:hover {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  // Estado activo (cuando se hace clic)
+  &:active {
+    transform: scale(0.99);
+  }
+}
+
+// Estilo para Firefox (personalización limitada)
+@-moz-document url-prefix() {
+  .custom-select {
+    text-indent: 0.01px;
+    text-overflow: '';
+  }
+}
