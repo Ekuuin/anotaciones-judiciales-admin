@@ -62,6 +62,8 @@
                 'text-yellow-500 bg-yellow-100 border-yellow-500':
                   solicitud.estado === 'En revisión',
                 'text-blue-500 bg-blue-100 border-blue-500': solicitud.estado === 'Pagada',
+                'text-purple-500 bg-purple-100 border-purple-500': solicitud.estado === 'Escaneo Oficialía',
+                'text-indigo-500 bg-indigo-100 border-indigo-500': solicitud.estado === 'Escaneo Archivo',
                 'text-gray-500 bg-gray-100 border-gray-500': solicitud.estado === 'Finalizada'
               }"
               >● {{ solicitud.estado }}</span
@@ -98,9 +100,23 @@
               } @if (solicitud.estado === 'Pagada') {
               <button
                 class="text-gray-500 font-medium bg-gray-50 px-3 py-1 rounded-lg hover:bg-gray-100 transition cursor-pointer"
-                (click)="subirDocumento(solicitud.folio)"
+                (click)="entregarAnotacion(solicitud.folio)"
               >
-                Subir documento
+                Entregar anotación
+              </button>
+              } @if (solicitud.estado === 'Escaneo Oficialía') {
+              <button
+                class="text-purple-500 font-medium bg-purple-50 px-3 py-1 rounded-lg hover:bg-purple-100 transition cursor-pointer"
+                (click)="subirEscaneoOficialia(solicitud.folio)"
+              >
+                Subir escaneo Oficialía
+              </button>
+              } @if (solicitud.estado === 'Escaneo Archivo') {
+              <button
+                class="text-indigo-500 font-medium bg-indigo-50 px-3 py-1 rounded-lg hover:bg-indigo-100 transition cursor-pointer"
+                (click)="subirEscaneoArchivo(solicitud.folio)"
+              >
+                Subir escaneo Archivo
               </button>
               }
             </div>
@@ -196,90 +212,105 @@
 >
   <div dialog-body>
     @if (dialogType === 'success') {
-      <form [formGroup]="documentos" (ngSubmit)="subirDocumentos()" class="mt-4">
-        <div class="space-y-4">
-          <!-- Acta de matrimonio -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2" for="actaMatrimonio">
-              Acta de matrimonio <span class="text-red-500">*</span>
-            </label>
-            <input
-              type="file"
-              id="actaMatrimonio"
-              formControlName="actaMatrimonio"
-              accept=".pdf,.jpg,.jpeg,.png"
-              (change)="onFileSelected($event, 'actaMatrimonio')"
-              class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-            />
-            <p class="mt-1 text-xs text-gray-500">PDF, JPG, JPEG o PNG (Máx. 5MB)</p>
-          </div>
+    <form [formGroup]="documentos" class="mt-4">
+      <div class="space-y-4">
+        <!-- Acta de matrimonio -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2" for="actaMatrimonio">
+            Acta de matrimonio <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="file"
+            id="actaMatrimonio"
+            accept=".pdf,.jpg,.jpeg,.png"
+            (change)="onFileSelected($event, 'actaMatrimonio')"
+            class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+            [class.border-red-500]="documentos.get('actaMatrimonio')?.invalid && documentos.get('actaMatrimonio')?.touched"
+          />
+          <p class="mt-1 text-xs text-gray-500">PDF, JPG, JPEG o PNG (Máx. 5MB)</p>
+          @if (documentos.get('actaMatrimonio')?.invalid && documentos.get('actaMatrimonio')?.touched) {
+          <p class="mt-1 text-xs text-red-500">Este documento es requerido</p>
+          }
+        </div>
 
-          <!-- Actas de nacimiento -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2" for="actasNacimiento">
-              Actas de nacimiento <span class="text-red-500">*</span>
-            </label>
-            <input
-              type="file"
-              id="actasNacimiento"
-              formControlName="actasNacimiento"
-              accept=".pdf,.jpg,.jpeg,.png"
-              multiple
-              (change)="onFileSelected($event, 'actasNacimiento')"
-              class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-            />
-            <p class="mt-1 text-xs text-gray-500">Selecciona múltiples archivos si es necesario</p>
-          </div>
+        <!-- Actas de nacimiento -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2" for="actasNacimiento">
+            Actas de nacimiento <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="file"
+            id="actasNacimiento"
+            accept=".pdf,.jpg,.jpeg,.png"
+            multiple
+            (change)="onFileSelected($event, 'actasNacimiento')"
+            class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+            [class.border-red-500]="documentos.get('actasNacimiento')?.invalid && documentos.get('actasNacimiento')?.touched"
+          />
+          <p class="mt-1 text-xs text-gray-500">Selecciona múltiples archivos si es necesario</p>
+          @if (documentos.get('actasNacimiento')?.invalid && documentos.get('actasNacimiento')?.touched) {
+          <p class="mt-1 text-xs text-red-500">Este documento es requerido</p>
+          }
+        </div>
 
-          <!-- Acuse de notificación -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2" for="acuseNotificacion">
-              Acuse de notificación <span class="text-red-500">*</span>
-            </label>
-            <input
-              type="file"
-              id="acuseNotificacion"
-              formControlName="acuseNotificacion"
-              accept=".pdf,.jpg,.jpeg,.png"
-              (change)="onFileSelected($event, 'acuseNotificacion')"
-              class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-            />
-            <p class="mt-1 text-xs text-gray-500">PDF, JPG, JPEG o PNG (Máx. 5MB)</p>
-          </div>
+        <!-- Acuse de notificación -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2" for="acuseNotificacion">
+            Acuse de notificación <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="file"
+            id="acuseNotificacion"
+            accept=".pdf,.jpg,.jpeg,.png"
+            (change)="onFileSelected($event, 'acuseNotificacion')"
+            class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+            [class.border-red-500]="documentos.get('acuseNotificacion')?.invalid && documentos.get('acuseNotificacion')?.touched"
+          />
+          <p class="mt-1 text-xs text-gray-500">PDF, JPG, JPEG o PNG (Máx. 5MB)</p>
+          @if (documentos.get('acuseNotificacion')?.invalid && documentos.get('acuseNotificacion')?.touched) {
+          <p class="mt-1 text-xs text-red-500">Este documento es requerido</p>
+          }
+        </div>
 
-          <!-- Resolución a cumplimentar -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2" for="resolucionCumplimentar">
-              Resolución a cumplimentar <span class="text-red-500">*</span>
-            </label>
-            <input
-              type="file"
-              id="resolucionCumplimentar"
-              formControlName="resolucionCumplimentar"
-              accept=".pdf,.jpg,.jpeg,.png"
-              (change)="onFileSelected($event, 'resolucionCumplimentar')"
-              class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-            />
-            <p class="mt-1 text-xs text-gray-500">PDF, JPG, JPEG o PNG (Máx. 5MB)</p>
-          </div>
+        <!-- Resolución a cumplimentar -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2" for="resolucionCumplimentar">
+            Resolución a cumplimentar <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="file"
+            id="resolucionCumplimentar"
+            accept=".pdf,.jpg,.jpeg,.png"
+            (change)="onFileSelected($event, 'resolucionCumplimentar')"
+            class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+            [class.border-red-500]="documentos.get('resolucionCumplimentar')?.invalid && documentos.get('resolucionCumplimentar')?.touched"
+          />
+          <p class="mt-1 text-xs text-gray-500">PDF, JPG, JPEG o PNG (Máx. 5MB)</p>
+          @if (documentos.get('resolucionCumplimentar')?.invalid && documentos.get('resolucionCumplimentar')?.touched) {
+          <p class="mt-1 text-xs text-red-500">Este documento es requerido</p>
+          }
+        </div>
 
-          <!-- Auto que la declara ejecutoria -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2" for="autoEjecutoria">
-              Auto que la declara ejecutoria <span class="text-red-500">*</span>
-            </label>
-            <input
-              type="file"
-              id="autoEjecutoria"
-              formControlName="autoEjecutoria"
-              accept=".pdf,.jpg,.jpeg,.png"
-              (change)="onFileSelected($event, 'autoEjecutoria')"
-              class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-            />
-            <p class="mt-1 text-xs text-gray-500">PDF, JPG, JPEG o PNG (Máx. 5MB)</p>
-          </div>
+        <!-- Auto que la declara ejecutoria -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2" for="autoEjecutoria">
+            Auto que la declara ejecutoria <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="file"
+            id="autoEjecutoria"
+            accept=".pdf,.jpg,.jpeg,.png"
+            (change)="onFileSelected($event, 'autoEjecutoria')"
+            class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+            [class.border-red-500]="documentos.get('autoEjecutoria')?.invalid && documentos.get('autoEjecutoria')?.touched"
+          />
+          <p class="mt-1 text-xs text-gray-500">PDF, JPG, JPEG o PNG (Máx. 5MB)</p>
+          @if (documentos.get('autoEjecutoria')?.invalid && documentos.get('autoEjecutoria')?.touched) {
+          <p class="mt-1 text-xs text-red-500">Este documento es requerido</p>
+          }
+        </div>
 
-          <!-- Mensaje de archivos seleccionados
+        <!-- Mensaje de archivos seleccionados
           @if (selectedFiles.length > 0) {
             <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
               <p class="text-sm font-medium text-blue-800 mb-2">📎 Archivos seleccionados:</p>
@@ -294,131 +325,220 @@
               </ul>
             </div>
           } -->
-        </div>
-      </form>
-    }
-
-    @if (dialogType === 'danger') {
-      <form [formGroup]="motivosImprocedencia" class="mt-4">
-        <div class="space-y-4">
-          <!-- Motivo principal de improcedencia -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2" for="motivoPrincipal">
-              Motivo de improcedencia <span class="text-red-500">*</span>
-            </label>
-            <div class="relative">
-              <select
-                id="motivoPrincipal"
-                formControlName="motivoPrincipal"
-                (change)="onMotivoChange($event)"
-                class="custom-select block w-full px-4 py-3 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white appearance-none cursor-pointer transition-all duration-200 hover:border-red-400 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:shadow-md"
-              >
-                <option value="" disabled class="text-gray-500">Selecciona un motivo</option>
-                <option value="expediente-no-cargado" class="py-2">
-                  1) Expediente no cargado en Buzón Electrónico del Poder Judicial
-                </option>
-                <option value="expediente-incompleto" class="py-2">2) Expediente incompleto</option>
-                <option value="incongruencia-datos" class="py-2">3) Incongruencia de datos</option>
-                <option value="anotacion-realizada" class="py-2">
-                  4) Anotación que solicita ya fue realizada
-                </option>
-                <option value="otro" class="py-2">5) Otro</option>
-              </select>
-              <!-- Icono de flecha personalizado -->
-              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
+      </div>
+    </form>
+    } @if (dialogType === 'danger') {
+    <form [formGroup]="motivosImprocedencia" class="mt-4">
+      <div class="space-y-4">
+        <!-- Motivo principal de improcedencia -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2" for="motivoPrincipal">
+            Motivo de improcedencia <span class="text-red-500">*</span>
+          </label>
+          <div class="relative">
+            <select
+              id="motivoPrincipal"
+              formControlName="motivoPrincipal"
+              (change)="onMotivoChange($event)"
+              class="custom-select block w-full px-4 py-3 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white appearance-none cursor-pointer transition-all duration-200 hover:border-red-400 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:shadow-md"
+            >
+              <option value="" disabled class="text-gray-500">Selecciona un motivo</option>
+              <option value="expediente-no-cargado" class="py-2">
+                1) Expediente no cargado en Buzón Electrónico del Poder Judicial
+              </option>
+              <option value="expediente-incompleto" class="py-2">2) Expediente incompleto</option>
+              <option value="incongruencia-datos" class="py-2">3) Incongruencia de datos</option>
+              <option value="anotacion-realizada" class="py-2">
+                4) Anotación que solicita ya fue realizada
+              </option>
+              <option value="otro" class="py-2">5) Otro</option>
+            </select>
+            <!-- Icono de flecha personalizado -->
+            <div
+              class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
             </div>
           </div>
-
-          <!-- Submotivo para Expediente incompleto -->
-          @if (motivoSeleccionado === 'expediente-incompleto') {
-            <div class="pl-4 border-l-4 border-red-300 bg-red-50 p-3 rounded-r-lg animate-fadeIn">
-              <label class="block text-sm font-medium text-gray-700 mb-2" for="submotivoIncompleto">
-                Especifica qué falta <span class="text-red-500">*</span>
-              </label>
-              <div class="relative">
-                <select
-                  id="submotivoIncompleto"
-                  formControlName="submotivo"
-                  class="custom-select block w-full px-4 py-3 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white appearance-none cursor-pointer transition-all duration-200 hover:border-red-400 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:shadow-md"
-                >
-                  <option value="" disabled class="text-gray-500">Selecciona lo que falta</option>
-                  <option value="falta-sentencia" class="py-2">Falta Sentencia</option>
-                  <option value="falta-ejecutoria" class="py-2">Falta Ejecutoria</option>
-                </select>
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-              </div>
-            </div>
-          }
-
-          <!-- Submotivo para Incongruencia de datos -->
-          @if (motivoSeleccionado === 'incongruencia-datos') {
-            <div class="pl-4 border-l-4 border-red-300 bg-red-50 p-3 rounded-r-lg animate-fadeIn">
-              <label class="block text-sm font-medium text-gray-700 mb-2" for="submotivoIncongruencia">
-                Especifica la incongruencia <span class="text-red-500">*</span>
-              </label>
-              <div class="relative">
-                <select
-                  id="submotivoIncongruencia"
-                  formControlName="submotivo"
-                  class="custom-select block w-full px-4 py-3 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white appearance-none cursor-pointer transition-all duration-200 hover:border-red-400 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:shadow-md"
-                >
-                  <option value="" disabled class="text-gray-500">Selecciona el tipo de incongruencia</option>
-                  <option value="nombres-contrayentes" class="py-2">En nombres de contrayentes</option>
-                  <option value="regimen-patrimonial" class="py-2">En régimen patrimonial</option>
-                  <option value="oficalia-no-corresponde" class="py-2">Oficialía no corresponde</option>
-                </select>
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-              </div>
-            </div>
-          }
-
-          <!-- Mensaje para Anotación ya realizada -->
-          @if (motivoSeleccionado === 'anotacion-realizada') {
-            <div class="p-4 bg-blue-50 border border-blue-300 rounded-lg animate-fadeIn">
-              <div class="flex items-start gap-3">
-                <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <div>
-                  <p class="text-sm font-semibold text-blue-800 mb-1">💡 Sugerencia</p>
-                  <p class="text-sm text-blue-700">
-                    Se sugiere solicitar certificación del acta de matrimonio para conocer la anotación.
-                  </p>
-                </div>
-              </div>
-            </div>
-          }
-
-          <!-- Campo de texto libre para Otro -->
-          @if (motivoSeleccionado === 'otro') {
-            <div class="pl-4 border-l-4 border-red-300 bg-red-50 p-3 rounded-r-lg animate-fadeIn">
-              <label class="block text-sm font-medium text-gray-700 mb-2" for="otroMotivo">
-                Describe el motivo <span class="text-red-500">*</span>
-              </label>
-              <textarea
-                id="otroMotivo"
-                formControlName="otroMotivo"
-                rows="4"
-                placeholder="Escribe aquí el motivo de improcedencia..."
-                class="block w-full px-3 py-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 resize-none"
-              ></textarea>
-              <p class="mt-1 text-xs text-gray-500">Mínimo 10 caracteres</p>
-            </div>
-          }
         </div>
-      </form>
+
+        <!-- Submotivo para Expediente incompleto -->
+        @if (motivoSeleccionado === 'expediente-incompleto') {
+        <div class="pl-4 border-l-4 border-red-300 bg-red-50 p-3 rounded-r-lg animate-fadeIn">
+          <label class="block text-sm font-medium text-gray-700 mb-2" for="submotivoIncompleto">
+            Especifica qué falta <span class="text-red-500">*</span>
+          </label>
+          <div class="relative">
+            <select
+              id="submotivoIncompleto"
+              formControlName="submotivo"
+              class="custom-select block w-full px-4 py-3 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white appearance-none cursor-pointer transition-all duration-200 hover:border-red-400 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:shadow-md"
+            >
+              <option value="" disabled class="text-gray-500">Selecciona lo que falta</option>
+              <option value="falta-sentencia" class="py-2">Falta Sentencia</option>
+              <option value="falta-ejecutoria" class="py-2">Falta Ejecutoria</option>
+            </select>
+            <div
+              class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </div>
+          </div>
+        </div>
+        }
+
+        <!-- Submotivo para Incongruencia de datos -->
+        @if (motivoSeleccionado === 'incongruencia-datos') {
+        <div class="pl-4 border-l-4 border-red-300 bg-red-50 p-3 rounded-r-lg animate-fadeIn">
+          <label class="block text-sm font-medium text-gray-700 mb-2" for="submotivoIncongruencia">
+            Especifica la incongruencia <span class="text-red-500">*</span>
+          </label>
+          <div class="relative">
+            <select
+              id="submotivoIncongruencia"
+              formControlName="submotivo"
+              class="custom-select block w-full px-4 py-3 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white appearance-none cursor-pointer transition-all duration-200 hover:border-red-400 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:shadow-md"
+            >
+              <option value="" disabled class="text-gray-500">
+                Selecciona el tipo de incongruencia
+              </option>
+              <option value="nombres-contrayentes" class="py-2">En nombres de contrayentes</option>
+              <option value="regimen-patrimonial" class="py-2">En régimen patrimonial</option>
+              <option value="oficalia-no-corresponde" class="py-2">Oficialía no corresponde</option>
+            </select>
+            <div
+              class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </div>
+          </div>
+        </div>
+        }
+
+        <!-- Mensaje para Anotación ya realizada -->
+        @if (motivoSeleccionado === 'anotacion-realizada') {
+        <div class="p-4 bg-blue-50 border border-blue-300 rounded-lg animate-fadeIn">
+          <div class="flex items-start gap-3">
+            <svg
+              class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <div>
+              <p class="text-sm font-semibold text-blue-800 mb-1">💡 Sugerencia</p>
+              <p class="text-sm text-blue-700">
+                Se sugiere solicitar certificación del acta de matrimonio para conocer la anotación.
+              </p>
+            </div>
+          </div>
+        </div>
+        }
+
+        <!-- Campo de texto libre para Otro -->
+        @if (motivoSeleccionado === 'otro') {
+        <div class="pl-4 border-l-4 border-red-300 bg-red-50 p-3 rounded-r-lg animate-fadeIn">
+          <label class="block text-sm font-medium text-gray-700 mb-2" for="otroMotivo">
+            Describe el motivo <span class="text-red-500">*</span>
+          </label>
+          <textarea
+            id="otroMotivo"
+            formControlName="otroMotivo"
+            rows="4"
+            placeholder="Escribe aquí el motivo de improcedencia..."
+            class="block w-full px-3 py-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 resize-none"
+          ></textarea>
+          <p class="mt-1 text-xs text-gray-500">Mínimo 10 caracteres</p>
+        </div>
+        }
+      </div>
+    </form>
+    } @if (dialogType === 'entregaAnotacion'){
+    <form [formGroup]="formAnotacion" class="mt-4">
+      <div class="space-y-4">
+        <label for="anotacion" class="block text-sm font-medium text-gray-700 mb-2"
+          >Anotación judicial <span class="text-red-500">*</span></label
+        >
+        <input
+          type="file"
+          id="anotacion"
+          formControlName="anotacion"
+          accept=".pdf,.jpg,.jpeg,.png"
+          class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+        />
+        <p class="mt-1 text-xs text-gray-500">PDF, JPG, JPEG o PNG (Máx. 5MB)</p>
+      </div>
+    </form>
+    } @if (dialogType === 'escaneoOficialia'){
+    <form [formGroup]="formEscaneoOficialia" class="mt-4">
+      <div class="space-y-4">
+        <label for="escaneoOficialia" class="block text-sm font-medium text-gray-700 mb-2"
+          >Escaneo de Oficialía <span class="text-red-500">*</span></label
+        >
+        <input
+          type="file"
+          id="escaneoOficialia"
+          formControlName="escaneoOficialia"
+          accept=".pdf,.jpg,.jpeg,.png"
+          class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+        />
+        <p class="mt-1 text-xs text-gray-500">PDF, JPG, JPEG o PNG (Máx. 5MB)</p>
+        <div class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <p class="text-xs text-blue-700">
+            📌 Este escaneo será realizado por la Oficialía del Registro Civil.
+          </p>
+        </div>
+      </div>
+    </form>
+    } @if (dialogType === 'escaneoArchivo'){
+    <form [formGroup]="formEscaneoArchivo" class="mt-4">
+      <div class="space-y-4">
+        <label for="escaneoArchivo" class="block text-sm font-medium text-gray-700 mb-2"
+          >Escaneo de Archivo Documental <span class="text-red-500">*</span></label
+        >
+        <input
+          type="file"
+          id="escaneoArchivo"
+          formControlName="escaneoArchivo"
+          accept=".pdf,.jpg,.jpeg,.png"
+          class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+        />
+        <p class="mt-1 text-xs text-gray-500">PDF, JPG, JPEG o PNG (Máx. 5MB)</p>
+        <div class="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+          <p class="text-xs text-green-700">
+            📌 Este es el último paso. Una vez subido este escaneo, la solicitud será marcada como <strong>FINALIZADA</strong>.
+          </p>
+        </div>
+      </div>
+    </form>
     }
   </div>
 </app-dialog>

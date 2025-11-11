@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 export interface DialogConfig {
   title: string;
   message: string;
-  type?: 'info' | 'success' | 'danger' | 'warning';
+  type?: 'info' | 'success' | 'danger' | 'warning' | 'entregaAnotacion' | 'escaneoOficialia' | 'escaneoArchivo';
   confirmText?: string;
   cancelText?: string;
   showCancel?: boolean;
@@ -21,7 +21,7 @@ export class Dialog {
   @Input() show = false;
   @Input() title = 'Título del Dialog';
   @Input() message = 'Mensaje del dialog';
-  @Input() type: 'info' | 'success' | 'danger' | 'warning' = 'info';
+  @Input() type: 'info' | 'success' | 'danger' | 'warning' | 'entregaAnotacion' | 'escaneoOficialia' | 'escaneoArchivo' = 'info';
   @Input() confirmText = 'Aceptar';
   @Input() cancelText = 'Cancelar';
   @Input() showCancel = true;

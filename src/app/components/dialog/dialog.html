@@ -43,6 +43,13 @@
               </svg>
             </div>
           }
+          @if (type === 'entregaAnotacion') {
+            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+              <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+          }
 
           <h3 class="text-xl font-semibold text-gray-900">
             {{ title }}
@@ -96,7 +103,7 @@
           class="px-4 py-2 text-white rounded-lg transition font-medium cursor-pointer"
           [ngClass]="{
             'bg-blue-600 hover:bg-blue-700': type === 'info',
-            'bg-green-600 hover:bg-green-700': type === 'success',
+            'bg-green-600 hover:bg-green-700': type === 'success' || type === 'entregaAnotacion' || type === 'escaneoOficialia' || type === 'escaneoArchivo',
             'bg-red-600 hover:bg-red-700': type === 'danger',
             'bg-yellow-600 hover:bg-yellow-700': type === 'warning'
           }"

@@ -9,7 +9,7 @@ interface Solicitud {
   usuario: string;
   fecha: string;
   lineaCaptura: string;
-  estado: 'En revisión' | 'Procedente' | 'Improcedente' | 'Pagada' | 'Finalizada';
+  estado: 'En revisión' | 'Procedente' | 'Improcedente' | 'Pagada' | 'Escaneo Oficialía' | 'Escaneo Archivo' | 'Finalizada';
 }
 
 interface SelectedFile {
@@ -31,7 +31,14 @@ export class Solicitudes {
   showDialog = false;
   dialogTitle = '';
   dialogMessage = '';
-  dialogType: 'info' | 'success' | 'danger' | 'warning' = 'info';
+  dialogType:
+    | 'info'
+    | 'success'
+    | 'danger'
+    | 'warning'
+    | 'entregaAnotacion'
+    | 'escaneoOficialia'
+    | 'escaneoArchivo' = 'info';
   dialogConfirmText = 'Aceptar';
   dialogCancelText = 'Cancelar';
   dialogShowCancel = true;
@@ -46,6 +53,13 @@ export class Solicitudes {
   motivosImprocedencia!: FormGroup;
   motivoSeleccionado = '';
   folioActual = ''; // Para almacenar el folio de la solicitud siendo procesada
+
+  //Formulario de entrega de anotaciones
+  formAnotacion!: FormGroup;
+
+  // Formularios de escaneo
+  formEscaneoOficialia!: FormGroup;
+  formEscaneoArchivo!: FormGroup;
 
   public headers = ['Folio', 'Usuario', 'Fecha', 'Línea de captura', 'Estado', 'Acciones'];
   public solicitudes: Solicitud[] = [
@@ -200,18 +214,33 @@ export class Solicitudes {
   }
 
   private initializeForm(): void {
+    // ✅ SOLUCIÓN: Los FormControls guardan booleanos (true/false)
+    // Inicializamos en null y validamos que sean required
+    // null = sin archivo, true = con archivo
     this.documentos = this.fb.group({
-      actaMatrimonio: [null, Validators.required],
-      actasNacimiento: [null, Validators.required],
-      acuseNotificacion: [null, Validators.required],
-      resolucionCumplimentar: [null, Validators.required],
-      autoEjecutoria: [null, Validators.required],
+      actaMatrimonio: [null, Validators.required],      // null o true
+      actasNacimiento: [null, Validators.required],     // null o true
+      acuseNotificacion: [null, Validators.required],   // null o true
+      resolucionCumplimentar: [null, Validators.required], // null o true
+      autoEjecutoria: [null, Validators.required],      // null o true
     });
 
     this.motivosImprocedencia = this.fb.group({
       motivoPrincipal: ['', Validators.required],
       submotivo: [''],
       otroMotivo: [''],
+    });
+
+    this.formAnotacion = this.fb.group({
+      anotacion: [null, Validators.required],
+    });
+
+    this.formEscaneoOficialia = this.fb.group({
+      escaneoOficialia: [null, Validators.required],
+    });
+
+    this.formEscaneoArchivo = this.fb.group({
+      escaneoArchivo: [null, Validators.required],
     });
   }
 
@@ -237,7 +266,7 @@ export class Solicitudes {
       // Remover archivos previos del mismo campo
       this.selectedFiles = this.selectedFiles.filter((f) => f.fieldName !== fieldName);
 
-      // Agregar nuevos archivos
+      // Agregar nuevos archivos al array
       files.forEach((file) => {
         this.selectedFiles.push({
           fieldName: this.getFieldLabel(fieldName),
@@ -247,10 +276,15 @@ export class Solicitudes {
         });
       });
 
-      // Actualizar el FormControl
+      // ✅ SOLUCIÓN: Marcar el FormControl como "tiene archivo" (true)
+      // En lugar de guardar el archivo, guardamos un booleano
+      // Esto permite que Angular valide sin intentar modificar el input HTML
       this.documentos.patchValue({
-        [fieldName]: files.length === 1 ? files[0] : files,
+        [fieldName]: true,  // ← Solo guardamos true/false, no el archivo
       });
+
+      // Marcar el control como "touched" para activar validación visual
+      this.documentos.get(fieldName)?.markAsTouched();
     }
   }
 
@@ -274,15 +308,28 @@ export class Solicitudes {
   }
 
   subirDocumentos(): void {
-    if (this.documentos.valid && this.selectedFiles.length === 5) {
+    // ✅ VALIDACIÓN MEJORADA:
+    // Verificamos que el form sea válido (todos los campos tienen true)
+    if (this.documentos.valid && this.selectedFiles.length >= 5) {
       console.log('📤 Subiendo documentos:', this.selectedFiles);
 
       // Aquí iría la lógica para subir los archivos al servidor
-      // Por ejemplo, usando FormData:
+      // Usamos los archivos del array selectedFiles, NO del FormControl
       const formData = new FormData();
       this.selectedFiles.forEach((item) => {
+        // Los archivos reales están en item.file
         formData.append(item.fieldName, item.file);
       });
+
+      // Actualizar el estado de la solicitud
+      this.filteredSolicitudes = this.filteredSolicitudes.map((solicitud) => {
+        if (solicitud.folio === this.folioActual) {
+          return { ...solicitud, estado: 'Procedente' };
+        }
+        return solicitud;
+      });
+
+      this.updatePaginatedSolicitudes();
 
       // Simular carga exitosa
       alert('✅ Documentos cargados correctamente');
@@ -316,7 +363,10 @@ export class Solicitudes {
     otroMotivoControl?.clearValidators();
 
     // Agregar validadores según el motivo seleccionado
-    if (this.motivoSeleccionado === 'expediente-incompleto' || this.motivoSeleccionado === 'incongruencia-datos') {
+    if (
+      this.motivoSeleccionado === 'expediente-incompleto' ||
+      this.motivoSeleccionado === 'incongruencia-datos'
+    ) {
       submotivoControl?.setValidators([Validators.required]);
     } else if (this.motivoSeleccionado === 'otro') {
       otroMotivoControl?.setValidators([Validators.required, Validators.minLength(10)]);
@@ -333,7 +383,7 @@ export class Solicitudes {
       'expediente-incompleto': 'Expediente incompleto',
       'incongruencia-datos': 'Incongruencia de datos',
       'anotacion-realizada': 'Anotación que solicita ya fue realizada',
-      'otro': 'Otro motivo',
+      otro: 'Otro motivo',
     };
     return motivos[motivo] || motivo;
   }
@@ -380,6 +430,78 @@ export class Solicitudes {
       this.closeDialog();
     } else {
       alert('⚠️ Por favor, completa todos los campos requeridos');
+    }
+  }
+
+  public validarYEntregarAnotacion(): void {
+    if (this.formAnotacion.valid) {
+      console.log('📋 Anotación entregada:', this.formAnotacion.value);
+
+      // Cambiar estado a "Escaneo Oficialía" en lugar de "Finalizada"
+      this.filteredSolicitudes = this.filteredSolicitudes.map((solicitud) => {
+        if (solicitud.folio === this.folioActual) {
+          return { ...solicitud, estado: 'Escaneo Oficialía' };
+        }
+        return solicitud;
+      });
+      this.updatePaginatedSolicitudes();
+
+      alert('✅ Anotación entregada correctamente. La solicitud pasó a estado "Escaneo Oficialía"');
+
+      // Limpiar formulario y estado
+      this.formAnotacion.reset();
+      this.folioActual = '';
+      this.closeDialog();
+    } else {
+      alert('⚠️ Por favor, completa todos los campos requeridos');
+    }
+  }
+
+  public validarYSubirEscaneoOficialia(): void {
+    if (this.formEscaneoOficialia.valid) {
+      console.log('📋 Escaneo Oficialía subido:', this.formEscaneoOficialia.value);
+
+      // Cambiar estado a "Escaneo Archivo"
+      this.filteredSolicitudes = this.filteredSolicitudes.map((solicitud) => {
+        if (solicitud.folio === this.folioActual) {
+          return { ...solicitud, estado: 'Escaneo Archivo' };
+        }
+        return solicitud;
+      });
+      this.updatePaginatedSolicitudes();
+
+      alert('✅ Escaneo de Oficialía registrado correctamente. La solicitud pasó a estado "Escaneo Archivo"');
+
+      // Limpiar formulario y estado
+      this.formEscaneoOficialia.reset();
+      this.folioActual = '';
+      this.closeDialog();
+    } else {
+      alert('⚠️ Por favor, adjunta el documento requerido');
+    }
+  }
+
+  public validarYSubirEscaneoArchivo(): void {
+    if (this.formEscaneoArchivo.valid) {
+      console.log('📋 Escaneo Archivo subido:', this.formEscaneoArchivo.value);
+
+      // Cambiar estado a "Finalizada"
+      this.filteredSolicitudes = this.filteredSolicitudes.map((solicitud) => {
+        if (solicitud.folio === this.folioActual) {
+          return { ...solicitud, estado: 'Finalizada' };
+        }
+        return solicitud;
+      });
+      this.updatePaginatedSolicitudes();
+
+      alert('✅ Escaneo de Archivo registrado correctamente. La solicitud ha sido FINALIZADA');
+
+      // Limpiar formulario y estado
+      this.formEscaneoArchivo.reset();
+      this.folioActual = '';
+      this.closeDialog();
+    } else {
+      alert('⚠️ Por favor, adjunta el documento requerido');
     }
   }
 
@@ -449,7 +571,14 @@ export class Solicitudes {
   openDialog(
     title: string,
     message: string,
-    type: 'info' | 'success' | 'danger' | 'warning' = 'info',
+    type:
+      | 'info'
+      | 'success'
+      | 'danger'
+      | 'warning'
+      | 'entregaAnotacion'
+      | 'escaneoOficialia'
+      | 'escaneoArchivo' = 'info',
     confirmText: string = 'Aceptar',
     cancelText: string = 'Cancelar',
     showCancel: boolean = true,
@@ -468,6 +597,9 @@ export class Solicitudes {
   closeDialog() {
     this.documentos.reset();
     this.motivosImprocedencia.reset();
+    this.formAnotacion.reset();
+    this.formEscaneoOficialia.reset();
+    this.formEscaneoArchivo.reset();
     this.selectedFiles = [];
     this.showDialog = false;
     this.dialogCallback = null;
@@ -481,6 +613,15 @@ export class Solicitudes {
     } else if (this.dialogType === 'danger') {
       // Dialog de improcedencia - validar y enviar motivo
       this.validarYEnviarImprocedencia();
+    } else if (this.dialogType === 'entregaAnotacion') {
+      // Dialog de entrega de anotación
+      this.validarYEntregarAnotacion();
+    } else if (this.dialogType === 'escaneoOficialia') {
+      // Dialog de escaneo de Oficialía
+      this.validarYSubirEscaneoOficialia();
+    } else if (this.dialogType === 'escaneoArchivo') {
+      // Dialog de escaneo de Archivo
+      this.validarYSubirEscaneoArchivo();
     } else if (this.dialogCallback) {
       // Otros tipos de dialog - ejecutar callback genérico
       this.dialogCallback();
@@ -507,22 +648,14 @@ export class Solicitudes {
   }
 
   public aprobarSolicitud(folio: string): void {
+    this.folioActual = folio;
     this.openDialog(
       'Confirmar aprobación',
       `Adjunta los siguientes documentos para la solicitud ${folio}:`,
       'success',
       'Aprobar',
       'Cancelar',
-      true,
-      () => {
-        this.filteredSolicitudes = this.filteredSolicitudes.map((solicitud) => {
-          if (solicitud.folio === folio) {
-            return { ...solicitud, estado: 'Procedente' };
-          }
-          return solicitud;
-        });
-        this.updatePaginatedSolicitudes();
-      }
+      true
     );
   }
 
@@ -546,14 +679,39 @@ export class Solicitudes {
     );
   }
 
-  public subirDocumento(folio: string): void {
-    alert('Subir documento para la solicitud con folio: ' + folio);
-    this.filteredSolicitudes = this.filteredSolicitudes.map((solicitud) => {
-      if (solicitud.folio === folio) {
-        return { ...solicitud, estado: 'Finalizada' };
-      }
-      return solicitud;
-    });
-    this.updatePaginatedSolicitudes();
+  public entregarAnotacion(folio: string): void {
+    this.folioActual = folio;
+    this.openDialog(
+      'Entregar anotación',
+      `Adjunte la anotación judicial correspondiente a la solicitud ${folio}`,
+      'entregaAnotacion',
+      'Entregar',
+      'Cancelar',
+      true
+    );
+  }
+
+  public subirEscaneoOficialia(folio: string): void {
+    this.folioActual = folio;
+    this.openDialog(
+      'Escaneo de Oficialía',
+      `Adjunte el escaneo de la anotación realizado por la Oficialía para la solicitud ${folio}`,
+      'escaneoOficialia',
+      'Subir escaneo',
+      'Cancelar',
+      true
+    );
+  }
+
+  public subirEscaneoArchivo(folio: string): void {
+    this.folioActual = folio;
+    this.openDialog(
+      'Escaneo de Archivo Documental',
+      `Adjunte el escaneo de la anotación realizado por el Archivo Documental para la solicitud ${folio}`,
+      'escaneoArchivo',
+      'Subir escaneo',
+      'Cancelar',
+      true
+    );
   }
 }
